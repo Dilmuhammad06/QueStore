@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script>let total = 0</script>
+
+    <!-- Shoping Cart Section Begin -->
+    <section class="shoping-cart spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="shoping__cart__table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="shoping__product">Products</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for key,value in cart.items %}
+                                <tr>
+                                    <td class="shoping__cart__item">
+                                        <img src="img/cart/cart-1.jpg" alt="">
+                                        <h5>{{value.name}}</h5>
+                                    </td>
+                                    <td class="shoping__cart__price">
+                                        ${{value.price}}
+                                    </td>
+                                    <td class="shoping__cart__quantity">
+                                        <div class="quantity">
+                                            <div class="pro-qty">
+                                                <input type="text" value="{{value.amount}}">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="shoping__cart__total">
+                                        ${{value.total}}
+                                        <script>total = total+{{value.total}}</script>
+                                    </td>
+                                    <td class="shoping__cart__item__close">
+                                        <button class="icon_close" id="delete_btn" value={{key}}></button>
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="shoping__cart__btns">
+                        <a href="#" class="primary-btn cart-btn">CONTINUE SHOPPING</a>
+                        <a href="#" class="primary-btn cart-btn cart-btn-right"><span class="icon_loading"></span>
+                            Upadate Cart</a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="shoping__continue">
+                        <div class="shoping__discount">
+                            <h5>Discount Codes</h5>
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <input type="text" name="code" id="coupon_code" placeholder="Enter your coupon code">
+                                <button id="apply_coupon" class="site-btn">APPLY COUPON</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="shoping__checkout">
+                        <h5>Cart Total</h5>
+                        <ul>
+                            <li>Subtotal <span id="sale_total">$454.98</span></li>
+                            <li>Total <span id="total_num">$454.98</span></li>
+                        </ul>
+                        {% if user.is_authenticated %}
+                        <script>
+                            if ({{user.balance}} >= total) {
+                            document.write('<button id="buy" onclick="showModal()" class="primary-btn">PROCEED TO CHECKOUT</button>')
+                            } else {
+                            document.write('<a href="" class="primary-btn">Balance is low</a>')
+                            }
+                        </script>
+                        {% else %}
+                        <a href="{% url 'auth:login' %}" class="primary-btn">Please login first</a>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- Modal -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Checkout</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to proceed to checkout these?
+            <br><br>
+          {% for key,value in cart.items %}
+          <ul>
+              <li>{{value.amount}}x {{value.name}}</li>
+          </ul>
+          {% endfor %}
+          <hr>
+          The total is:<p id="checkout_total">The total is </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          {% if user.is_authenticated %}
+            <button type="button" id="confirm" class="btn btn-primary">Proceed</button>
+          {% else %}
+            <a href="{% url 'auth:login' %}" type="button" class="btn btn-primary">Please login first</a>
+          {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+    <!-- Shoping Cart Section End -->
+
+<script>
+    console.log(total)
+$(document).on('click', '#delete_btn', function(e){
+    e.preventDefault();
+    var product_id = $(this).val();
+
+    $.ajax({
+        type:'POST',
+        url: "{% url 'cart:cart_delete' %}",
+        data:{
+            product_id: product_id,
+            csrfmiddlewaretoken: '{{csrf_token}}',
+            action:'post'
+        },
+        success: function(json){
+            console.log(json)
+            document.getElementById("cart_items").textContext = json.cart_items
+        },
+        error: function(xhr, errmsg, err){
+
+        }
+    })
+})
+
+
+$(document).on('click', '#confirm', function(g){
+    g.preventDefault();
+    var product_id = $(this).val();
+
+    $.ajax({
+        type:'POST',
+        url: "{% url 'cart:save_shopping' %}",
+        data:{
+            total: total,
+            csrfmiddlewaretoken: '{{csrf_token}}',
+            action:'post'
+        },
+        success: function(json){
+            console.log(json)
+            document.getElementById("cart_items").textContext = json.cart_items
+        },
+        error: function(xhr, errmsg, err){
+
+        }
+    })
+})
+
+
+
+function showModal() {
+    $('#checkoutModal').modal('show');
+}
+
+
+
+
+
+var total_show = document.getElementById('total_num');
+var sale = document.getElementById('sale_total');
+var checkout_total = document.getElementById('checkout_total');
+sale.textContent = '$0';
+total_show.textContent = '$'+total;
+checkout_total.textContent = '$'+total;
+
+</script>
+
+{% endblock %}

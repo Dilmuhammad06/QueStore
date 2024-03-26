@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Page</title>
+</head>
+<body>
+    <form action="" method="post">
+        {% csrf_token %}
+        <h2>Register</h2>
+        <div class="input-container">
+            <input type="text" name="username" id="username">
+            <label for="username">Username</label>
+        </div>
+        <div class="input-container">
+            <input type="email" name="email" id="email">
+            <label for="email">Email</label>
+        </div>
+        <div class="input-container">
+            <input type="number" name="phone" id="phone">
+            <label for="phone">Phone</label>
+        </div>
+        <div class="input-container">
+            <input type="password" name="password" id="password">
+            <label for="password">Password</label>
+        </div>
+        <button type="submit">Register</button>
+        <a href="{% url 'auth:login' %}">Login</a>
+        {% if msg %}
+        <small>{{ msg }}</small>
+        {% endif %}
+    </form>
+</body>
+</html>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        max-width: 100%;
+        text-align: center;
+    }
+
+    form h2 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .input-container {
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    .input-container input {
+        width: calc(100% - 20px);
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        transition: border-color 0.3s;
+    }
+
+    .input-container input:focus {
+        border-color: #007bff;
+    }
+
+    .input-container label {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        pointer-events: none;
+        transition: top 0.3s, font-size 0.3s, color 0.3s;
+    }
+
+    .input-container input:focus + label,
+    .input-container input:not(:placeholder-shown) + label {
+        top: 0;
+        font-size: 12px;
+        color: #007bff;
+    }
+
+    form button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.3s;
+    }
+
+    form button:hover {
+        background-color: #0056b3;
+    }
+
+    form small {
+        color: red;
+        display: block;
+        margin-top: 10px;
+    }
+
+    form a {
+        display: block;
+        margin-top: 15px;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    form a:hover {
+        text-decoration: underline;
+    }
+</style>
